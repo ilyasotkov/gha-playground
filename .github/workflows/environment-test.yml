@@ -1,0 +1,23 @@
+name: environment inputs test
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: environment
+        
+defaults:
+  run:
+    shell: bash
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-20.04
+    environment:
+      name: x_production
+      url: https://github.com
+    steps:
+    - uses: actions/checkout@v2
+    - name: Show triggering event
+      run: cat $GITHUB_EVENT_PATH

@@ -36,7 +36,7 @@ jobs:
       - run: echo ${{ matrix.jobname }}
 
   order3jobs:
-    if: fromJSON(needs.orchestrator.outputs.matrix2).jobname[0] != null
+    if: fromJSON(needs.orchestrator.outputs.matrix3).jobname[0] != null
     runs-on: ubuntu-latest
     needs: [orchestrator, order1jobs, order2jobs]
     strategy:

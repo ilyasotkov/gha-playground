@@ -7,30 +7,34 @@ jobs:
     steps:
       - id: step1
         run: |
-          echo '::set-output name=json::{"order1": ["one111", "two222"], "order2": ["zzz-mmm"], "order3": ["xxx-yyy"]}'
+          echo '::set-output name=order1::{"jobname": ["1-a", "1-b"]}'
+          echo '::set-output name=order2::{"jobname": ["2-a"]}'
+          echo '::set-output name=order3::{"jobname": ["3-a"]}'
     outputs:
-      matrix: ${{ steps.step1.outputs.json }}
+      matrix1: ${{ steps.step1.outputs.order1 }}
+      matrix2: ${{ steps.step1.outputs.order2 }}
+      matrix3: ${{ steps.step1.outputs.order3 }}
 
   order1jobs:
     runs-on: ubuntu-latest
     needs: orchestrator
     strategy:
-      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix1) }}
     steps:
-      - run: echo ${{ matrix.order1 }}
+      - run: echo ${{ matrix.jobname }}
 
   order2jobs:
     runs-on: ubuntu-latest
     needs: [orchestrator, order1jobs]
     strategy:
-      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix2) }}
     steps:
-      - run: echo ${{ matrix.order2 }}
+      - run: echo ${{ matrix.jobname }}
 
   order3jobs:
     runs-on: ubuntu-latest
     needs: [orchestrator, order1jobs, order2jobs]
     strategy:
-      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix) }}
+      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix3) }}
     steps:
-      - run: echo ${{ matrix.order3 }}
+      - run: echo ${{ matrix.jobname }}

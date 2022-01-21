@@ -8,8 +8,8 @@ jobs:
       - id: step1
         run: |
           echo '::set-output name=order1::{"jobname": ["1-a", "1-b"]}'
-          echo '::set-output name=order2::{"jobname": []}'
-          echo '::set-output name=order3::{"jobname": ["3-a"]}'
+          echo '::set-output name=order2::{"jobname": ["3-a"]}'
+          echo '::set-output name=order3::{"jobname": []}'
     outputs:
       matrix1: ${{ steps.step1.outputs.order1 }}
       matrix2: ${{ steps.step1.outputs.order2 }}

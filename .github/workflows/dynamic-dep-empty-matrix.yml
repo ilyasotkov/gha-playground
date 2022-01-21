@@ -1,0 +1,42 @@
+on:
+  workflow_dispatch: {}
+
+jobs:
+  orchestrator:
+    runs-on: ubuntu-latest
+    steps:
+      - id: step1
+        run: |
+          echo '::set-output name=order1::{"jobname": ["1-a", "1-b"]}'
+          echo '::set-output name=order2::{"jobname": []}'
+          echo '::set-output name=order3::{"jobname": ["3-a"]}'
+    outputs:
+      matrix1: ${{ steps.step1.outputs.order1 }}
+      matrix2: ${{ steps.step1.outputs.order2 }}
+      matrix3: ${{ steps.step1.outputs.order3 }}
+
+  order1jobs:
+    runs-on: ubuntu-latest
+    needs: orchestrator
+    strategy:
+      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix1) }}
+    steps:
+      - run: echo ${{ matrix.jobname }}
+      - if: matrix.jobname == '1-b'
+        run: echo 'Step exclusive for 1-b'
+
+  order2jobs:
+    runs-on: ubuntu-latest
+    needs: [orchestrator, order1jobs]
+    strategy:
+      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix2) }}
+    steps:
+      - run: echo ${{ matrix.jobname }}
+
+  order3jobs:
+    runs-on: ubuntu-latest
+    needs: [orchestrator, order1jobs, order2jobs]
+    strategy:
+      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix3) }}
+    steps:
+      - run: echo ${{ matrix.jobname }}

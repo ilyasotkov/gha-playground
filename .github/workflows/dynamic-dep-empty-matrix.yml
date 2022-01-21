@@ -2,44 +2,44 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  orchestrator:
+  find-jobs:
     runs-on: ubuntu-latest
     steps:
       - id: step1
         run: |
-          echo '::set-output name=order1::{"jobname": ["1-a", "1-b"]}'
-          echo '::set-output name=order2::{"jobname": ["3-a"]}'
-          echo '::set-output name=order3::{"jobname": []}'
+          echo '::set-output name=_1::{"path": ["1-a", "1-b"]}'
+          echo '::set-output name=_2::{"path": ["2-a"]}'
+          echo '::set-output name=_3::{"path": []}'
     outputs:
-      matrix1: ${{ steps.step1.outputs.order1 }}
-      matrix2: ${{ steps.step1.outputs.order2 }}
-      matrix3: ${{ steps.step1.outputs.order3 }}
+      _1: ${{ steps.step1.outputs._1 }}
+      _2: ${{ steps.step1.outputs._2 }}
+      _3: ${{ steps.step1.outputs._3 }}
 
-  order1jobs:
-    if: fromJSON(needs.orchestrator.outputs.matrix1).jobname[0] != null
+  _1:
+    if: fromJSON(needs.orchestrator.outputs._1).path[0] != null
     runs-on: ubuntu-latest
-    needs: orchestrator
+    needs: find-jobs
     strategy:
-      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix1) }}
+      matrix: ${{ fromJSON(needs.orchestrator.outputs._1) }}
     steps:
-      - run: echo ${{ matrix.jobname }}
-      - if: matrix.jobname == '1-b'
+      - run: echo ${{ matrix.path }}
+      - if: matrix.path == '1-b'
         run: echo 'Step exclusive for 1-b'
 
-  order2jobs:
-    if: fromJSON(needs.orchestrator.outputs.matrix2).jobname[0] != null
+  _2:
+    if: fromJSON(needs.orchestrator.outputs._2).path[0] != null
     runs-on: ubuntu-latest
-    needs: [orchestrator, order1jobs]
+    needs: [find-jobs, _1]
     strategy:
-      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix2) }}
+      matrix: ${{ fromJSON(needs.orchestrator.outputs._2) }}
     steps:
-      - run: echo ${{ matrix.jobname }}
+      - run: echo ${{ matrix.path }}
 
-  order3jobs:
-    if: fromJSON(needs.orchestrator.outputs.matrix3).jobname[0] != null
+  _3:
+    if: fromJSON(needs.orchestrator.outputs._3).path[0] != null
     runs-on: ubuntu-latest
-    needs: [orchestrator, order1jobs, order2jobs]
+    needs: [find-jobs, _1, _2]
     strategy:
-      matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix3) }}
+      matrix: ${{ fromJSON(needs.orchestrator.outputs._3) }}
     steps:
-      - run: echo ${{ matrix.jobname }}
+      - run: echo ${{ matrix.path }}

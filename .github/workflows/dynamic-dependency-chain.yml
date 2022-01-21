@@ -22,6 +22,8 @@ jobs:
       matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix1) }}
     steps:
       - run: echo ${{ matrix.jobname }}
+      - if: matrix.jobname == '1-b'
+        run: echo 'Step exclusive for 1-b'
 
   order2jobs:
     runs-on: ubuntu-latest

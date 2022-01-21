@@ -16,7 +16,7 @@ jobs:
       matrix3: ${{ steps.step1.outputs.order3 }}
 
   order1jobs:
-    if: needs.orchestrator.outputs.matrix1.jobname[0] != null
+    if: fromJSON(needs.orchestrator.outputs.matrix1).jobname[0] != null
     runs-on: ubuntu-latest
     needs: orchestrator
     strategy:
@@ -27,7 +27,7 @@ jobs:
         run: echo 'Step exclusive for 1-b'
 
   order2jobs:
-    if: needs.orchestrator.outputs.matrix2.jobname[0] != null
+    if: fromJSON(needs.orchestrator.outputs.matrix2).jobname[0] != null
     runs-on: ubuntu-latest
     needs: [orchestrator, order1jobs]
     strategy:
@@ -36,7 +36,7 @@ jobs:
       - run: echo ${{ matrix.jobname }}
 
   order3jobs:
-    if: needs.orchestrator.outputs.matrix3.jobname[0] != null
+    if: fromJSON(needs.orchestrator.outputs.matrix2).jobname[0] != null
     runs-on: ubuntu-latest
     needs: [orchestrator, order1jobs, order2jobs]
     strategy:

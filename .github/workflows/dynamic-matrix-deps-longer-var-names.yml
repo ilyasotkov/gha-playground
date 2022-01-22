@@ -7,8 +7,8 @@ jobs:
     steps:
       - id: step1
         run: |
-          echo '::set-output name=order1::{"job": [{"path": "1-a"}, {"path": "1-b"}]}'
-          echo '::set-output name=order2::{"job": [{"path": "2-a"}]}'
+          echo '::set-output name=order1::{"job": [{"path": "1-a", "deploy": true}, {"path": "1-b", "deploy": false}]}'
+          echo '::set-output name=order2::{"job": [{"path": "2-a", "deploy": true}]}'
           echo '::set-output name=order3::{"job": []}'
     outputs:
       matrix1: ${{ steps.step1.outputs.order1 }}
@@ -25,6 +25,8 @@ jobs:
       - run: echo ${{ matrix.job.path }}
       - if: matrix.job.path == '1-b'
         run: echo 'Step exclusive for 1-b'
+      - if: matrix.job.deploy == true
+        run: echo 'Deploying ${{ matrix.job.path }}'
 
   _2:
     if: fromJSON(needs.orchestrator.outputs.matrix2).job[0] != null
@@ -34,6 +36,8 @@ jobs:
       matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix2) }}
     steps:
       - run: echo ${{ matrix.job.path }}
+      - if: matrix.job.deploy == true
+        run: echo 'Deploying ${{ matrix.job.path }}'
 
   _3:
     if: fromJSON(needs.orchestrator.outputs.matrix3).job[0] != null
@@ -43,3 +47,5 @@ jobs:
       matrix: ${{ fromJSON(needs.orchestrator.outputs.matrix3) }}
     steps:
       - run: echo ${{ matrix.job.path }}
+      - if: matrix.job.deploy == true
+        run: echo 'Deploying ${{ matrix.job.path }}'
